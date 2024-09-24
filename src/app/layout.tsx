@@ -3,6 +3,7 @@ import { inter } from "@/app/ui/fonts";
 import { Sidebar } from "@/layouts/Sidebar";
 import Header from "@/layouts/Header";
 import NextTopLoader from "nextjs-toploader";
+import QueryProvider from "@/components/custom/query-provider";
 
 export const metadata = {
   title: "Sidebar",
@@ -21,6 +22,8 @@ export default function RootLayout({
           <Sidebar />
           <div className="flex flex-col">
             <Header />
+
+            {/* <QueryProvider>{children}</QueryProvider> */}
             {children}
           </div>
         </div>

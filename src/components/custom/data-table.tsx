@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 import {
   useReactTable,
@@ -26,22 +26,20 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
 // (property) DataTableProps<Application, string>.data: Application[]
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData = unknown, TValue = unknown> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-function DataTable<TData, TValue>({
+function DataTable<TData = unknown, TValue = unknown>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const table = useReactTable({
+  const table = useReactTable<TData>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),

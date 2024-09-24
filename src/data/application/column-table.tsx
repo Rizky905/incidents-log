@@ -5,7 +5,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Application } from "@/types/data";
 
-const columnHelper = createColumnHelper<Application>();
+// const columnHelper = createColumnHelper<Application>();
+const columnHelper = createColumnHelper<unknown>();
 const Columns = [
   columnHelper.accessor("name", {
     header: ({ column }) => {
