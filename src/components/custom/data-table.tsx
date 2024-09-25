@@ -1,18 +1,25 @@
 "use client";
 
-import React, { useState } from "react";
-
+import { Button } from "@/components/ui/button";
 import {
-  useReactTable,
-  ColumnDef,
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
-  ColumnFiltersState,
-  getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+} from "@tanstack/react-table";
+import * as React from "react";
 
 import {
   Table,
@@ -22,68 +29,85 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Skeleton } from "../ui/skeleton";
 
-// (property) DataTableProps<Application, string>.data: Application[]
-interface DataTableProps<TData = unknown, TValue = unknown> {
+interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading?: boolean;
 }
 
-function DataTable<TData = unknown, TValue = unknown>({
+export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const tableData = React.useMemo(
+    () => (isLoading ? Array(10).fill({}) : data),
+    [isLoading, data]
+  );
+  const tableColumns = React.useMemo(
+    () =>
+      isLoading
+        ? columns.map((column) => ({
+            ...column,
+            cell: () => <Skeleton className="w-full h-[20px] rounded-full" />,
+          }))
+        : columns,
+    [isLoading, columns]
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-  const table = useReactTable<TData>({
-    data,
-    columns,
+  const table = useReactTable({
+    columns: tableColumns,
+    data: tableData,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
-      columnFilters,
+      columnVisibility,
+      rowSelection,
     },
   });
 
   return (
-    <div>
-      <div className="flex items-center py-4 gap-2">
-        {/* <div className="flex-none w-64">
-          <Input
-            placeholder="Filter apps..."
-            value={(table.getColumn("apps")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("apps")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div> */}
-        {/* <div className="flex-none w-64">
-          <Input
-            placeholder="Filter request by..."
-            value={
-              (table.getColumn("request_by")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("request_by")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div> */}
+    <div className="w-full flex flex-col items-start gap-4">
+      <div className="w-full flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columns
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value: boolean) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="w-full rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -103,7 +127,6 @@ function DataTable<TData = unknown, TValue = unknown>({
               </TableRow>
             ))}
           </TableHeader>
-
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -134,27 +157,6 @@ function DataTable<TData = unknown, TValue = unknown>({
           </TableBody>
         </Table>
       </div>
-
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
     </div>
   );
 }
-
-export default DataTable;

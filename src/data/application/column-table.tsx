@@ -1,13 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { createColumnHelper } from "@tanstack/react-table";
+import {
+  type AccessorKeyColumnDef,
+  createColumnHelper,
+} from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import { Application } from "@/types/data";
 
-// const columnHelper = createColumnHelper<Application>();
-const columnHelper = createColumnHelper<unknown>();
-const Columns = [
+const columnHelper = createColumnHelper<Application>();
+// const columnHelper = createColumnHelper<unknown>();
+export const Columns: AccessorKeyColumnDef<Application, any>[] = [
   columnHelper.accessor("name", {
     header: ({ column }) => {
       return (
@@ -32,4 +35,3 @@ const Columns = [
     enableColumnFilter: true,
   }),
 ];
-export default Columns;

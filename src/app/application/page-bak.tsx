@@ -18,7 +18,7 @@ import Columns from "@/data/application/column-table";
 import { FaPlus } from "react-icons/fa6";
 import Link from "next/link";
 // import { get_application } from "@/services/master-data/get_application";
-import { getApplicationApi } from "@/services/master-data/getApplicationApi";
+import { getApplicationApi } from "@/services/application/getApplicationApi";
 import { array } from "zod";
 
 const queryClient = new QueryClient();

@@ -2,6 +2,7 @@ import { Application } from "./data";
 
 export type GetApplicationResponse = {
   success: boolean;
-  message: string;
+  messages: string;
+  total: number;
   datas: Application[];
 };
